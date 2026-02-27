@@ -4,9 +4,17 @@ struct _pthread {
     type pthread_t = extern pthread_t;
     type pthread_attribute_t = extern pthread_attribute_t;
 
+    type pthread_mutex_t = extern pthread_mutex_t;
+    type pthread_mutexattr_t = extern pthread_mutexattr_t;
+
     Int extern pthread_create(pthread_t* thread, pthread_attribute_t* attr,
             void* (void*) start_routine, void* arg);
     Int extern pthread_join(pthread_t thread, void** retval);
+
+    Int extern pthread_mutex_init(pthread_mutex_t* mutex, pthread_mutexattr_t* mutexattr);
+    Int extern pthread_mutex_lock(pthread_mutex_t* mutex);
+    Int extern pthread_mutex_unlock(pthread_mutex_t* mutex);
+    Int extern pthread_mutex_destroy(pthread_mutex_t* mutex);
 }
 
 struct StartRoutine<R, A> {
@@ -22,8 +30,8 @@ struct StartRoutine<R, A> {
 }
 
 struct Thread<R, A> {
-    _pthread::pthread_t tid;
-    StartRoutine<R, A>* start_routine;
+    private _pthread::pthread_t tid;
+    private StartRoutine<R, A>* start_routine;
 
     Thread<R, A> new(R (A) callback, A argument) {
         Thread<R, A> thread = Thread {
@@ -47,5 +55,29 @@ struct Thread<R, A> {
          R retval = *retval_ptr.(R*);
          self.free();
          return retval;
+    }
+}
+
+struct Mutex<T> {
+    private _pthread::pthread_mutex_t mutex;
+    private T value;
+
+    Mutex<T> new(T value) {
+        Mutex<T> mutex = Mutex { extern<auto> PTHREAD_MUTEX_INITIALIZER, value };
+        _pthread::pthread_mutex_init(&mutex.mutex, 0);
+        return mutex;
+    }
+
+    T* lock(&self) {
+        _pthread::pthread_mutex_lock(&self->mutex);
+        return &self->value;
+    }
+
+    void unlock(&self) {
+        _pthread::pthread_mutex_unlock(&self->mutex);
+    }
+
+    void free(&self) {
+        _pthread::pthread_mutex_destroy(&self->mutex);
     }
 }
