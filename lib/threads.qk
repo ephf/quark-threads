@@ -1,0 +1,51 @@
+import collections::allocator::{ Allocator };
+
+struct _pthread {
+    type pthread_t = extern pthread_t;
+    type pthread_attribute_t = extern pthread_attribute_t;
+
+    Int extern pthread_create(pthread_t* thread, pthread_attribute_t* attr,
+            void* (void*) start_routine, void* arg);
+    Int extern pthread_join(pthread_t thread, void** retval);
+}
+
+struct StartRoutine<R, A> {
+    R (A) callback;
+    A argument;
+    R retval;
+
+    void* entry(void* void_self) {
+        const StartRoutine<R, A>* self = void_self.(StartRoutine*);
+        self->retval = self->callback(self->argument);
+        return (&(self->retval)).(void*);
+    }
+}
+
+struct Thread<R, A> {
+    _pthread::pthread_t tid;
+    StartRoutine<R, A>* start_routine;
+
+    Thread<R, A> new(R (A) callback, A argument) {
+        Thread<R, A> thread = Thread {
+            start_routine: Allocator::alloc(sizeof(StartRoutine<R, A>)),
+        };
+        *thread.start_routine = StartRoutine { callback, argument };
+
+        _pthread::pthread_create(&thread.tid, 0, StartRoutine<R, A>::entry,
+                thread.start_routine.(void*));
+
+        return thread;
+    }
+
+    void free(self) {
+        Allocator::free(self.start_routine);
+    }
+
+    R wait(self) {
+        void* retval_ptr;
+        _pthread::pthread_join(self.tid, &retval_ptr);
+         R retval = *retval_ptr.(R*);
+         self.free();
+         return retval;
+    }
+}

@@ -1,0 +1,8 @@
+import threads::{ Thread };
+
+Thread<int, int> thread = Thread::new(int (int x) {
+    print("Hello World!");
+    return 0;
+}, 5);
+
+thread.wait();
