@@ -45,8 +45,8 @@ numbers.free();
 results.free();
 ```
 
-You can see the compiled output of this program in [`test/build/out.c`](test/build/out.c). See the [`Makefile`](makefile) for a compilation example. *Note `$QUARK_LIB` is specified as the `lib/` directory on your clone, not the root (see `important` label in [Quark `0.5.4pre`](https://github.com/quark-programming/quark/releases/tag/0.5.4pre))*.
+You can see the compiled output of this program in [`test/build/out.c`](test/build/out.c). See the [`Makefile`](makefile) for a compilation example. *Note `$QUARK_LIB` is specified as the `lib/` directory on your clone, not the root (see `important` label in [Quark `0.5.5pre`](https://github.com/quark-programming/quark/releases/tag/0.5.5pre))*.
 
 ### Extra
 
-> [Quark `0.5.4pre`](https://github.com/quark-programming/quark/releases/tag/0.5.4pre) or see [latest](https://github.com/quark-programming/quark/releases)
+> [Quark `0.5.5pre`](https://github.com/quark-programming/quark/releases/tag/0.5.5pre) or see [latest](https://github.com/quark-programming/quark/releases)
